@@ -77,7 +77,7 @@ public class ConsoleApp {
         File[] files = folder.listFiles();
         for (File file : Objects.requireNonNull(files)) {
             if (file.isDirectory()) {
-                System.out.println("[directory] " + file.getName());
+                System.out.println("[dir] " + file.getName());
             } else {
                 System.out.println(file.getName());
             }
