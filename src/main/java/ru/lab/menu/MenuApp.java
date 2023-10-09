@@ -9,7 +9,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
-public class MenuApp extends JFrame{
+public class MenuApp extends JFrame {
+    private final File file = new File("TestDir");
     private JButton viewButton;
     private JLabel labelDir;
     private JLabel mainDir;
@@ -27,7 +28,6 @@ public class MenuApp extends JFrame{
     private JLabel copyField;
     private JComboBox changeDirBox;
     private JComboBox changeDirToCopy;
-    private final File file = new File("TestDir");
     private String dirFromUrl = file.getPath();
 
     public MenuApp() {
@@ -36,7 +36,6 @@ public class MenuApp extends JFrame{
 
         CDButton.addActionListener(e -> {
             cdUrl((String) Objects.requireNonNull(changeDirBox.getSelectedItem()));   //То, что ввёл пользователь, отправляется на проверку
-            //TODO Сделать смену директории на ту, которую ввёл пользователь
             mainDir.setText(dirFromUrl);
             changeBoxes();
         });
@@ -48,9 +47,9 @@ public class MenuApp extends JFrame{
             String command = (String) typeBox.getSelectedItem(); //Выбор типа копирования
             String fileToCopyName = (String) fileNamesBox.getSelectedItem(); // Выбор имени файла
             String dirForCopy = (String) changeDirToCopy.getSelectedItem(); // Выбор директории для копирования
-            switch (command){
-                case "By name" -> copyByName(new String[]{fileToCopyName,dirForCopy});
-                case "By extension" -> copyByExtension(new String[]{fileToCopyName,dirForCopy});
+            switch (command) {
+                case "By name" -> copyByName(new String[]{fileToCopyName, dirForCopy});
+                case "By extension" -> copyByExtension(new String[]{fileToCopyName, dirForCopy});
             }
         });
         toMainDirButton.addActionListener(e -> {
@@ -59,35 +58,45 @@ public class MenuApp extends JFrame{
             changeBoxes();
         });
         typeBox.addActionListener(e -> {
-            String[] commands = {"Name","Extension"};
+            String[] commands = {"Name", "Extension"};
             int commandId = typeBox.getSelectedIndex();
-            switch (commands[commandId]){
+            switch (commands[commandId]) {
                 case "Name" -> {
                     fileNamesBox.removeAllItems();
-                    for(String item: getFileNames()){
+                    for (String item : getFileNames()) {
                         fileNamesBox.addItem(item);
                     }
                 }
                 case "Extension" -> {
                     fileNamesBox.removeAllItems();
-                    for(String item: getFileExtensions()){
+                    for (String item : getFileExtensions()) {
                         fileNamesBox.addItem(item);
                     }
                 }
             }
         });
     }
-    private void changeBoxes(){
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("MenuApp");
+        frame.setContentPane(new MenuApp().mainPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private void changeBoxes() {
         changeDirBox.removeAllItems();
-        for(String item: getDirNames()){
+        for (String item : getDirNames()) {
             changeDirBox.addItem(item);
         }
         changeDirToCopy.removeAllItems();
-        for(String item: getDirNames()){
+        for (String item : getDirNames()) {
             changeDirToCopy.addItem(item);
         }
     }
-    private String[] getFileNames(){
+
+    private String[] getFileNames() {
         List<String> names = new ArrayList<>();
         File folder = new File(dirFromUrl);
         File[] files = folder.listFiles();
@@ -100,7 +109,8 @@ public class MenuApp extends JFrame{
         }
         return names.toArray(String[]::new);
     }
-    private Set<String> getDirNames(){
+
+    private Set<String> getDirNames() {
         Set<String> fileExtensionsSet = new HashSet<>();
         File folder = new File(dirFromUrl);
         File[] files = folder.listFiles();
@@ -112,8 +122,7 @@ public class MenuApp extends JFrame{
         return fileExtensionsSet;
     }
 
-
-    private Set<String> getFileExtensions(){
+    private Set<String> getFileExtensions() {
         Set<String> fileExtensionsSet = new HashSet<>();
         File folder = new File(dirFromUrl);
         File[] files = folder.listFiles();
@@ -130,6 +139,7 @@ public class MenuApp extends JFrame{
         }
         return fileExtensionsSet;
     }
+
     private String viewAll() {
         StringBuilder sb = new StringBuilder();
         File folder = new File(dirFromUrl);
@@ -146,7 +156,7 @@ public class MenuApp extends JFrame{
 
     //Закрепление новой директории
     private void cdUrl(String dirFromUrl) {
-        if(dirFromUrl.equals("")){
+        if (dirFromUrl.equals("")) {
             return;
         }
         if (dirFromUrl.indexOf(':') < 0) {
@@ -159,6 +169,7 @@ public class MenuApp extends JFrame{
             this.dirFromUrl = dirFromUrl;
         }
     }
+
     //Копирование по имени
     private void copyByName(String[] parts) {
         String fileName = parts[0];
@@ -236,12 +247,5 @@ public class MenuApp extends JFrame{
             exceptionLabel.setText("Ошибка при работе с каталогом: " + e.getMessage());
         }
 
-    }
-        public static void main(String[] args) {
-        JFrame frame = new JFrame("MenuApp");
-        frame.setContentPane(new MenuApp().mainPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
     }
 }
