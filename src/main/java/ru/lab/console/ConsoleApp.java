@@ -1,4 +1,4 @@
-package ru.lab;
+package ru.lab.console;
 
 import lombok.AllArgsConstructor;
 import ru.lab.enums.TypeAction;
@@ -71,7 +71,7 @@ public class ConsoleApp {
             System.out.println(type.getTag() + " - " + type.getTagDescription());
         }
     }
-
+    //Просмотр файлов
     private void viewAll() {
         File folder = new File(dirFromUrl);
         File[] files = folder.listFiles();
@@ -84,6 +84,7 @@ public class ConsoleApp {
         }
     }
 
+    //Закрепление новой директории
     private void cdUrl(String dirFromUrl) {
         if (dirFromUrl.indexOf(':') < 0) {
             if (dirFromUrl.startsWith("/")) {
@@ -94,7 +95,6 @@ public class ConsoleApp {
         } else {
             this.dirFromUrl = dirFromUrl;
         }
-
     }
 
     private void checkCopyType(String parts) {
@@ -111,6 +111,7 @@ public class ConsoleApp {
         }
     }
 
+    //Копирование по имени
     private void copyByName(String command) {
         String[] parts = command.trim().split(" ", 2);
         String fileName = parts[0];
@@ -127,6 +128,7 @@ public class ConsoleApp {
 
     }
 
+    //Копирование одного файла
     private boolean copyOneFile(Path originalPath, Path copied) {
         try {
             Files.copy(originalPath, copied, StandardCopyOption.REPLACE_EXISTING);
@@ -137,6 +139,7 @@ public class ConsoleApp {
         return false;
     }
 
+    //Копирование по расширению
     private void copyByExtension(String command) {
         String[] parts = command.trim().split(" ", 2);
         String extension = parts[0];
@@ -173,6 +176,7 @@ public class ConsoleApp {
         return copied;
     }
 
+    //Копирование директории
     private void copyOneDirectory(Path originalPath, Path dest) {
         try {
             Files.walk(originalPath)
