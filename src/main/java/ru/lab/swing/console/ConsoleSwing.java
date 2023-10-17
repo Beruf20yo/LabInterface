@@ -1,13 +1,13 @@
-package ru.lab.console;
+package ru.lab.swing.console;
 
-import lombok.AllArgsConstructor;
 import ru.lab.enums.TypeAction;
 import ru.lab.enums.TypeCopy;
 
-import java.io.BufferedReader;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,72 +16,91 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@AllArgsConstructor
-public class ConsoleApp {
-
+public class ConsoleSwing {
     private final List<TypeAction> typeCommand = new ArrayList<>(
             List.of(TypeAction.VIEW, TypeAction.CD, TypeAction.COPY,
                     TypeAction.HELP, TypeAction.EXIT, TypeAction.COPY_ALG));
-    private String dirFromUrl;
+    private JTextField command;
+    private JLabel dirName;
+    private JButton makeCommand;
+    private JPanel MainPanel;
+    private JTextArea dirFiles;
 
-    public void checkCommand() {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
-            while (true) {
-                System.out.print(dirFromUrl + "=> ");
-                String fullStr = bufferedReader.readLine();
-                String[] parts = fullStr.trim().split(" ", 2);
-                String command = parts[0].replace(" ", "").toLowerCase();
-                switch (command) {
-                    case "copy" -> checkCopyType(parts[1]);
-                    case "view" -> viewAll();
-                    case "cd" -> cdUrl(parts[1]);
-                    case "copyalg" -> copyAlgorithm();
-                    case "!help" -> {
-                        System.out.println(TypeAction.HELP.getTagDescription());
-                        showAllCommands();
-                    }
-                    case "exit" -> {
-                        return;
-                    }
-                    default -> System.out.println("Ошибка ввода команды " + command + "," +
-                            " введите !help, чтобы увидеть список возможных команд");
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Ошибка ввода команды, введите !help, чтобы увидеть список возможных команд");
-        }
-
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("ConsoleSwing");
+        frame.setContentPane(new ConsoleSwing().MainPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setSize(700,500);
     }
 
+    private final File file = new File("TestDir");
+    private String dirFromUrl = file.getPath();
+
+
+public ConsoleSwing() {
+    dirName.setText(dirFromUrl);
+
+    makeCommand.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String fullStr = command.getText();
+            String[] parts = fullStr.trim().split(" ", 2);
+            String command = parts[0].replace(" ", "").toLowerCase();
+            switch (command) {
+                case "copy" -> checkCopyType(parts[1]);
+                case "view" -> viewAll();
+                case "cd" -> cdUrl(parts[1]);
+                case "copyalg" -> copyAlgorithm();
+                case "!help" -> {
+                    showAllCommands();
+                }
+                case "exit" -> {
+                    return;
+                }
+                default -> dirFiles.setText("Ошибка ввода команды " + command + "," +
+                        " введите !help, чтобы увидеть список возможных команд");
+            }
+        }
+    });
+}
     private void copyAlgorithm() {
-        System.out.println("""
+    StringBuilder sb = new StringBuilder();
+    sb.append("""
                 Копировать можно как файлы так и каталоги:
                   Для копирования по имени:
                    -Абсолютный путь: copy -byname example.txt D://Example
-                   -Путь относительно текущего каталога: copy -byname dirName /example""");
-        System.out.println("""
+                   -Путь относительно текущего каталога: copy -byname dirName /example""")
+            .append("""
                   Для копирования по расширению:
                    -Абсолютный путь: copy -byext .txt D://Example
                    -Путь относительно текущего каталога: copy -byname dir /example\
                 """);
+
     }
 
     private void showAllCommands() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Все команды:\n");
         for (TypeAction type : typeCommand) {
-            System.out.println(type.getTag() + " - " + type.getTagDescription());
+            sb.append(type.getTag()).append(" - ").append(type.getTagDescription()).append("\n");
         }
+        dirFiles.setText(sb.toString());
     }
     //Просмотр файлов
     private void viewAll() {
         File folder = new File(dirFromUrl);
         File[] files = folder.listFiles();
+        StringBuilder sb = new StringBuilder();
         for (File file : Objects.requireNonNull(files)) {
             if (file.isDirectory()) {
-                System.out.println("[dir] " + file.getName());
+                sb.append("[dir] ").append(file.getName()).append("\n");
             } else {
-                System.out.println(file.getName());
+                sb.append(file.getName()).append("\n");
             }
         }
+        dirFiles.setText(sb.toString());
     }
 
     //Закрепление новой директории
@@ -95,6 +114,7 @@ public class ConsoleApp {
         } else {
             this.dirFromUrl = dirFromUrl;
         }
+        dirName.setText(this.dirFromUrl);
     }
 
     private void checkCopyType(String parts) {
@@ -104,10 +124,12 @@ public class ConsoleApp {
         } else if (command.startsWith(TypeCopy.BY_EXTENSION.getTag())) {
             copyByExtension(command.replace(TypeCopy.BY_EXTENSION.getTag(), ""));
         } else {
-            System.out.println("Вы некорректно ввели тип копирования " +
-                    "\nВозможные команды копирования:");
-            System.out.println(TypeCopy.BY_EXTENSION.getTag() + " - " + TypeCopy.BY_EXTENSION.getTagDescription() +
-                    TypeCopy.BY_NAME.getTag() + " - " + TypeCopy.BY_NAME.getTagDescription());
+            StringBuilder sb = new StringBuilder();
+            sb.append("Вы некорректно ввели тип копирования " +
+                    "\nВозможные команды копирования:").append(TypeCopy.BY_EXTENSION.getTag()).append(" - ")
+                    .append(TypeCopy.BY_EXTENSION.getTagDescription()).append(TypeCopy.BY_NAME.getTag())
+                    .append(" - ").append(TypeCopy.BY_NAME.getTagDescription());
+            dirFiles.setText(sb.toString());
         }
     }
 
@@ -121,9 +143,9 @@ public class ConsoleApp {
         Path copied = getPathForCopy(dirToUrl, fileName);
         if (original.isDirectory()) {
             copyOneDirectory(originalPath, copied);
-            System.out.println("Успешное копирование каталога");
+            dirFiles.setText("Успешное копирование каталога");
         } else {
-            System.out.println(copyOneFile(originalPath, copied) ? "Успешное копирование файла" : "Произошла ошибка");
+            dirFiles.setText(copyOneFile(originalPath, copied) ? "Успешное копирование файла" : "Произошла ошибка");
         }
 
     }
@@ -134,7 +156,7 @@ public class ConsoleApp {
             Files.copy(originalPath, copied, StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {
-            System.out.println("Ошибка при работе с файлом: " + e.getMessage());
+            dirFiles.setText("Ошибка при работе с файлом: " + e.getMessage());
         }
         return false;
     }
@@ -179,7 +201,7 @@ public class ConsoleApp {
     //Копирование директории
     private void copyOneDirectory(Path originalPath, Path dest) {
         try {
-            Files.  walk(originalPath)
+            Files.walk(originalPath)
                     .forEach(source -> {
                         try {
                             Files.copy(source, dest.resolve(originalPath.relativize(source)),
@@ -189,10 +211,8 @@ public class ConsoleApp {
                         }
                     });
         } catch (IOException e) {
-            System.out.println("Ошибка при работе с каталогом: " + e.getMessage());
+            dirFiles.setText("Ошибка при работе с каталогом: " + e.getMessage());
         }
 
     }
-
-
 }

@@ -1,4 +1,4 @@
-package ru.lab.menu;
+package ru.lab.swing.menu;
 
 import javax.swing.*;
 import java.io.File;
@@ -83,6 +83,7 @@ public class MenuApp extends JFrame {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        frame.setSize(1200,500);
     }
 
     private void changeBoxes() {
