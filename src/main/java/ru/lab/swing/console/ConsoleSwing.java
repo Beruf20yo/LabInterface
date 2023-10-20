@@ -19,7 +19,8 @@ import java.util.Objects;
 public class ConsoleSwing {
     private final List<TypeAction> typeCommand = new ArrayList<>(
             List.of(TypeAction.VIEW, TypeAction.CD, TypeAction.COPY,
-                    TypeAction.HELP, TypeAction.EXIT, TypeAction.COPY_ALG));
+                    TypeAction.HELP, TypeAction.EXIT, TypeAction.COPY_ALG,
+                    TypeAction.MAIN));
     private JTextField command;
     private JLabel dirName;
     private JButton makeCommand;
@@ -45,7 +46,7 @@ public ConsoleSwing() {
     makeCommand.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String fullStr = command.getText();
+            String fullStr = command.getText().replaceAll("[\\s]{2,}", " ");
             String[] parts = fullStr.trim().split(" ", 2);
             String command = parts[0].replace(" ", "").toLowerCase();
             switch (command) {
@@ -58,6 +59,9 @@ public ConsoleSwing() {
                 }
                 case "exit" -> {
                     return;
+                }
+                case "main" ->{
+                    dirFromUrl = new File("TestDir").getPath();
                 }
                 default -> dirFiles.setText("Ошибка ввода команды " + command + "," +
                         " введите !help, чтобы увидеть список возможных команд");
@@ -77,7 +81,7 @@ public ConsoleSwing() {
                    -Абсолютный путь: copy -byext .txt D://Example
                    -Путь относительно текущего каталога: copy -byname dir /example\
                 """);
-
+    dirFiles.setText(sb.toString());
     }
 
     private void showAllCommands() {
@@ -89,28 +93,29 @@ public ConsoleSwing() {
         dirFiles.setText(sb.toString());
     }
     //Просмотр файлов
-    private void viewAll() {
+    private List<String> viewAll() {
         File folder = new File(dirFromUrl);
         File[] files = folder.listFiles();
         StringBuilder sb = new StringBuilder();
+        List<String> fileNames = new ArrayList<>();
         for (File file : Objects.requireNonNull(files)) {
             if (file.isDirectory()) {
+                fileNames.add("[dir] " + file.getName());
                 sb.append("[dir] ").append(file.getName()).append("\n");
             } else {
+                fileNames.add(file.getName());
                 sb.append(file.getName()).append("\n");
             }
         }
         dirFiles.setText(sb.toString());
+        return fileNames;
     }
 
     //Закрепление новой директории
     private void cdUrl(String dirFromUrl) {
-        if (dirFromUrl.indexOf(':') < 0) {
-            if (dirFromUrl.startsWith("/")) {
-                this.dirFromUrl = this.dirFromUrl + dirFromUrl.trim();
-            } else {
-                this.dirFromUrl = this.dirFromUrl + "/" + dirFromUrl.trim();
-            }
+        String newDir = dirFromUrl.replace("/", "");
+        if (dirFromUrl.indexOf(':') < 0 && viewAll().contains("[dir] " + newDir)) {
+            this.dirFromUrl = this.dirFromUrl + "/" + newDir.trim();
         } else {
             this.dirFromUrl = dirFromUrl;
         }
@@ -138,6 +143,10 @@ public ConsoleSwing() {
         String[] parts = command.trim().split(" ", 2);
         String fileName = parts[0];
         String dirToUrl = parts[1];
+        if(dirToUrl.endsWith(fileName)){
+            dirFiles.setText("Невозможное копирование каталога");
+            return;
+        }
         File original = new File(dirFromUrl + "/" + fileName);
         Path originalPath = original.toPath();
         Path copied = getPathForCopy(dirToUrl, fileName);
@@ -170,7 +179,7 @@ public ConsoleSwing() {
         File[] files = folder.listFiles();
         if (extension.equals("dir")) {
             for (File file : Objects.requireNonNull(files)) {
-                if (file.isDirectory()) {
+                if (file.isDirectory() && !(dirToUrl.endsWith(file.getName()))) {
                     copyOneDirectory(file.toPath(), getPathForCopy(dirToUrl, file.getName()));
                 }
             }

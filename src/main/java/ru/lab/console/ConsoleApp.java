@@ -21,19 +21,20 @@ public class ConsoleApp {
 
     private final List<TypeAction> typeCommand = new ArrayList<>(
             List.of(TypeAction.VIEW, TypeAction.CD, TypeAction.COPY,
-                    TypeAction.HELP, TypeAction.EXIT, TypeAction.COPY_ALG));
+                    TypeAction.HELP, TypeAction.EXIT, TypeAction.COPY_ALG,
+                    TypeAction.MAIN));
     private String dirFromUrl;
 
     public void checkCommand() {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
             while (true) {
                 System.out.print(dirFromUrl + "=> ");
-                String fullStr = bufferedReader.readLine();
+                String fullStr = bufferedReader.readLine().replaceAll("[\\s]{2,}", " ");
                 String[] parts = fullStr.trim().split(" ", 2);
                 String command = parts[0].replace(" ", "").toLowerCase();
                 switch (command) {
                     case "copy" -> checkCopyType(parts[1]);
-                    case "view" -> viewAll();
+                    case "view" -> viewAll().forEach(System.out::println);
                     case "cd" -> cdUrl(parts[1]);
                     case "copyalg" -> copyAlgorithm();
                     case "!help" -> {
@@ -42,6 +43,9 @@ public class ConsoleApp {
                     }
                     case "exit" -> {
                         return;
+                    }
+                    case "main" ->{
+                        dirFromUrl = new File("TestDir").getPath();
                     }
                     default -> System.out.println("Ошибка ввода команды " + command + "," +
                             " введите !help, чтобы увидеть список возможных команд");
@@ -72,26 +76,25 @@ public class ConsoleApp {
         }
     }
     //Просмотр файлов
-    private void viewAll() {
+    private List<String> viewAll() {
+        List<String> fileNames = new ArrayList<>();
         File folder = new File(dirFromUrl);
         File[] files = folder.listFiles();
         for (File file : Objects.requireNonNull(files)) {
             if (file.isDirectory()) {
-                System.out.println("[dir] " + file.getName());
+                fileNames.add("[dir] " + file.getName());
             } else {
-                System.out.println(file.getName());
+                fileNames.add(file.getName());
             }
         }
+        return fileNames;
     }
 
     //Закрепление новой директории
     private void cdUrl(String dirFromUrl) {
-        if (dirFromUrl.indexOf(':') < 0) {
-            if (dirFromUrl.startsWith("/")) {
-                this.dirFromUrl = this.dirFromUrl + dirFromUrl.trim();
-            } else {
-                this.dirFromUrl = this.dirFromUrl + "/" + dirFromUrl.trim();
-            }
+        String newDir = dirFromUrl.replace("/", "");
+        if (dirFromUrl.indexOf(':') < 0 && viewAll().contains("[dir] " + newDir)) {
+            this.dirFromUrl = this.dirFromUrl + "/" + newDir.trim();
         } else {
             this.dirFromUrl = dirFromUrl;
         }
@@ -116,12 +119,17 @@ public class ConsoleApp {
         String[] parts = command.trim().split(" ", 2);
         String fileName = parts[0];
         String dirToUrl = parts[1];
+        if(dirToUrl.endsWith(fileName)){
+            System.out.println("Невозможное копирование каталога");
+            return;
+        }
         File original = new File(dirFromUrl + "/" + fileName);
         Path originalPath = original.toPath();
         Path copied = getPathForCopy(dirToUrl, fileName);
         if (original.isDirectory()) {
             copyOneDirectory(originalPath, copied);
             System.out.println("Успешное копирование каталога");
+
         } else {
             System.out.println(copyOneFile(originalPath, copied) ? "Успешное копирование файла" : "Произошла ошибка");
         }
@@ -148,8 +156,9 @@ public class ConsoleApp {
         File[] files = folder.listFiles();
         if (extension.equals("dir")) {
             for (File file : Objects.requireNonNull(files)) {
-                if (file.isDirectory()) {
+                if (file.isDirectory() && !(dirToUrl.endsWith(file.getName()))) {
                     copyOneDirectory(file.toPath(), getPathForCopy(dirToUrl, file.getName()));
+                    System.out.println("Успешное копирование каталога");
                 }
             }
         } else if (extension.startsWith(".")) {

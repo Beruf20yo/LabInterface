@@ -46,11 +46,16 @@ public class MenuApp extends JFrame {
         copyButton.addActionListener(e -> {
             String command = (String) typeBox.getSelectedItem(); //Выбор типа копирования
             String fileToCopyName = (String) fileNamesBox.getSelectedItem(); // Выбор имени файла
-            String dirForCopy = (String) changeDirToCopy.getSelectedItem(); // Выбор директории для копирования
-            switch (command) {
-                case "By name" -> copyByName(new String[]{fileToCopyName, dirForCopy});
-                case "By extension" -> copyByExtension(new String[]{fileToCopyName, dirForCopy});
+            String dirForCopy = (String) changeDirToCopy.getSelectedItem();// Выбор директории для копирования
+            if (Objects.requireNonNull(fileToCopyName).endsWith(Objects.requireNonNull(dirForCopy))){
+                exceptionLabel.setText("Невозможное копирование каталога");
+            } else{
+                switch (Objects.requireNonNull(command)) {
+                    case "By name" -> copyByName(new String[]{fileToCopyName, dirForCopy});
+                    case "By extension" -> copyByExtension(new String[]{fileToCopyName, dirForCopy});
+                }
             }
+
         });
         toMainDirButton.addActionListener(e -> {
             dirFromUrl = file.getPath();

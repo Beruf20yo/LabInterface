@@ -15,7 +15,7 @@
         <properties>
           <font size="16"/>
           <foreground color="-15000805"/>
-          <text value="Label"/>
+          <text value="directory"/>
         </properties>
       </component>
       <component id="2b5ff" class="javax.swing.JButton" binding="viewButton" default-binding="true">
