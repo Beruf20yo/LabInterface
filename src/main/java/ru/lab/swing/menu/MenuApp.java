@@ -1,5 +1,7 @@
 package ru.lab.swing.menu;
 
+import lombok.AllArgsConstructor;
+
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -174,7 +176,9 @@ public class MenuApp extends JFrame {
         } else {
             this.dirFromUrl = dirFromUrl;
         }
+
     }
+
 
     //Копирование по имени
     private void copyByName(String[] parts) {
