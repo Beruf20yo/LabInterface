@@ -1,8 +1,8 @@
 package ru.lab.console;
 
 import lombok.AllArgsConstructor;
-import ru.lab.enums.TypeAction;
-import ru.lab.enums.TypeCopy;
+import ru.lab.console.enums.TypeAction;
+import ru.lab.console.enums.TypeCopy;
 
 import java.io.BufferedReader;
 import java.io.File;

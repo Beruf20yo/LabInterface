@@ -1,4 +1,4 @@
-package ru.lab.enums;
+package ru.lab.console.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

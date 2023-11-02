@@ -32,6 +32,7 @@ public class AnalogMenu {
     private JLabel dirToLabel;
     private JMenu changeDirToMenu;
     private JTextPane allFileNames;
+    private JLabel nameLabel;
     private String dirFromUrl = file.getPath();
 
     public AnalogMenu() {

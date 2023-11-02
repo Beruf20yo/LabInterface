@@ -1,7 +1,7 @@
 package ru.lab.swing.console;
 
-import ru.lab.enums.TypeAction;
-import ru.lab.enums.TypeCopy;
+import ru.lab.console.enums.TypeAction;
+import ru.lab.console.enums.TypeCopy;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
